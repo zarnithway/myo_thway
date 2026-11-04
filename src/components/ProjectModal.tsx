@@ -50,13 +50,25 @@ function ProjectModalSheet({ project, onClose }: ProjectModalSheetProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current) {
+        clearTimeout(copiedTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleShareLink = async () => {
     try {
       const shareUrl = `${window.location.origin}/?project=${encodeURIComponent(project.code)}`;
       await navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2200);
+      if (copiedTimeoutRef.current) {
+        clearTimeout(copiedTimeoutRef.current);
+      }
+      copiedTimeoutRef.current = setTimeout(() => setCopiedLink(false), 2200);
     } catch {
       // Fallback if clipboard API blocked
     }

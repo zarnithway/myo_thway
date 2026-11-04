@@ -126,6 +126,7 @@ export function ProjectsEditor({
       id: copyId,
       code: `${source.code}-B`,
       title: `${source.title} (Copy)`,
+      status: 'draft',
     };
     const next = [...projects];
     next.splice(idx + 1, 0, clone);
@@ -337,7 +338,7 @@ export function ProjectsEditor({
                             {proj.code}
                           </span>
                           {proj.status === 'draft' && (
-                            <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 font-mono text-[9px] font-semibold text-amber-500">
+                            <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-amber-500">
                               DRAFT
                             </span>
                           )}

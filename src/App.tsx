@@ -43,8 +43,8 @@ function findProjectByQuery(projects: CivilProject[]): CivilProject | null {
     projects.find((p) => {
       if (p.status === 'draft') return false;
       return (
-        p.code.toLowerCase() === normalized ||
-        p.id.toLowerCase() === normalized
+        p.code?.toLowerCase() === normalized ||
+        p.id?.toLowerCase() === normalized
       );
     }) ?? null
   );
@@ -153,9 +153,14 @@ export function App() {
       if (active) {
         setContent(data);
         const queryMatched = findProjectByQuery(data.projects);
-        if (queryMatched) {
-          setSelectedProject((current) => current ?? queryMatched);
-        }
+        setSelectedProject((current) => {
+          if (!current) return queryMatched;
+          return (
+            data.projects.find(
+              (p) => p.code?.toLowerCase() === current.code?.toLowerCase()
+            ) ?? current
+          );
+        });
       }
     });
     return () => {

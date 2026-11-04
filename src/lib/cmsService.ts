@@ -210,41 +210,46 @@ export async function compressImageToWebpFile(
     const img = new Image();
 
     img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      let { width, height } = img;
-      if (width > maxDimension || height > maxDimension) {
-        const scale = Math.min(maxDimension / width, maxDimension / height);
-        width = Math.round(width * scale);
-        height = Math.round(height * scale);
-      }
+      try {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        if (width > maxDimension || height > maxDimension) {
+          const scale = Math.min(maxDimension / width, maxDimension / height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
 
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        resolve(file);
-        return;
-      }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
 
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            resolve(file);
-            return;
-          }
-          const baseName = file.name.replace(/\.[^.]+$/, '');
-          const webpName = `${baseName || 'image'}.webp`;
-          const webpFile = new File([blob], webpName, {
-            type: 'image/webp',
-            lastModified: Date.now(),
-          });
-          resolve(webpFile);
-        },
-        'image/webp',
-        quality
-      );
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const baseName = file.name.replace(/\.[^.]+$/, '');
+            const webpName = `${baseName || 'image'}.webp`;
+            const webpFile = new File([blob], webpName, {
+              type: 'image/webp',
+              lastModified: Date.now(),
+            });
+            resolve(webpFile);
+          },
+          'image/webp',
+          quality
+        );
+      } catch {
+        URL.revokeObjectURL(objectUrl);
+        resolve(file); // Graceful fallback to original file
+      }
     };
 
     img.onerror = () => {
@@ -326,11 +331,15 @@ export async function uploadMediaFile(
     );
   }
 
-  if (file.size > 10 * 1024 * 1024) {
-    throw new Error('File exceeds the 10 MB security upload limit.');
+  if (file.size > 25 * 1024 * 1024) {
+    throw new Error('File exceeds the 25 MB pre-compression upload limit.');
   }
 
   const fileToUpload = await compressImageToWebpFile(file);
+
+  if (fileToUpload.size > 10 * 1024 * 1024) {
+    throw new Error('Compressed file exceeds the 10 MB security upload limit.');
+  }
 
   if (isSupabaseConfigured && supabase) {
     const safeName = fileToUpload.name
