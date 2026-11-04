@@ -1,13 +1,22 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { ContactFooter } from './components/ContactFooter';
+
+const AdminDashboard = lazy(() =>
+  import('./components/admin/AdminDashboard').then((m) => ({
+    default: m.AdminDashboard,
+  }))
+);
 import { ExpertiseBento } from './components/ExpertiseBento';
 import { Hero } from './components/Hero';
 import { Navbar } from './components/Navbar';
 import { ProjectModal } from './components/ProjectModal';
 import { ProjectsSection } from './components/ProjectsSection';
 import { TimelineSection } from './components/TimelineSection';
-import { portfolioData } from './data/portfolioData';
-import type { CivilProject } from './types/portfolio';
+import {
+  getInitialCachedPortfolioData,
+  loadPortfolioData,
+} from './lib/cmsService';
+import type { CivilProject, PortfolioData } from './types/portfolio';
 
 type ThemeMode = 'architectural' | 'blueprint';
 
@@ -24,7 +33,17 @@ function getSystemTheme(): ThemeMode {
   return 'architectural';
 }
 
+function isAdminPath(pathname: string): boolean {
+  return pathname === '/admin' || pathname.startsWith('/admin/');
+}
+
 export function App() {
+  const [pathname, setPathname] = useState<string>(() =>
+    typeof window !== 'undefined' ? window.location.pathname : '/'
+  );
+  const [content, setContent] = useState<PortfolioData>(
+    getInitialCachedPortfolioData
+  );
   const [systemTheme, setSystemTheme] = useState<ThemeMode>(getSystemTheme);
   const [themeOverride, setThemeOverride] = useState<ThemeMode | null>(() => {
     try {
@@ -40,6 +59,36 @@ export function App() {
   );
 
   const theme: ThemeMode = themeOverride ?? systemTheme;
+
+  // Load latest portfolio content from Supabase (or local preview cache)
+  useEffect(() => {
+    let active = true;
+    loadPortfolioData().then(({ data }) => {
+      if (active) {
+        setContent(data);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Client-side SPA route listener (/ <-> /admin)
+  useEffect(() => {
+    const handlePopState = () => {
+      setPathname(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = useCallback((nextPath: string) => {
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState(null, '', nextPath);
+      setPathname(nextPath);
+      window.scrollTo(0, 0);
+    }
+  }, []);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
@@ -98,7 +147,27 @@ export function App() {
   };
 
   const handleDownloadResume = () => {
-    const { profile, experience, credentials, competencies } = portfolioData;
+    const { profile, experience, credentials, competencies } = content;
+
+    const rawResumeUrl = profile.resumeUrl?.trim() ?? '';
+    const isSafeResumeUrl =
+      rawResumeUrl.startsWith('https://') ||
+      rawResumeUrl.startsWith('http://') ||
+      rawResumeUrl.startsWith('/') ||
+      rawResumeUrl.startsWith('data:application/pdf');
+
+    if (rawResumeUrl.length > 0 && isSafeResumeUrl) {
+      const link = document.createElement('a');
+      link.href = rawResumeUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      if (rawResumeUrl.startsWith('data:')) {
+        link.download = `${profile.name.replace(/\s+/g, '_')}_CV.pdf`;
+      }
+      link.click();
+      return;
+    }
+
     const specText = [
       `${profile.name.toUpperCase()}, ${profile.credentials}`,
       `${profile.title} — ${profile.company}`,
@@ -135,6 +204,31 @@ export function App() {
     URL.revokeObjectURL(url);
   };
 
+  if (isAdminPath(pathname)) {
+    return (
+      <Suspense
+        fallback={
+          <div className="cad-grid-bg flex min-h-screen items-center justify-center">
+            <p
+              className="font-mono text-xs"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              LOADING UMT ADMIN STUDIO...
+            </p>
+          </div>
+        }
+      >
+        <AdminDashboard
+          portfolioData={content}
+          onPortfolioSaved={(next) => setContent(next)}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+          onNavigateHome={() => navigateTo('/')}
+        />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="cad-grid-bg relative min-h-screen">
       {/* Subtle Ambient Architectural Light Washes Behind Frosted Glass */}
@@ -159,7 +253,7 @@ export function App() {
       {/* Main Content Layer */}
       <div className="relative z-10">
         <Navbar
-          profile={portfolioData.profile}
+          profile={content.profile}
           theme={theme}
           onToggleTheme={handleToggleTheme}
           onDownloadResume={handleDownloadResume}
@@ -167,25 +261,28 @@ export function App() {
 
         <main>
           <Hero
-            profile={portfolioData.profile}
-            metrics={portfolioData.metrics}
+            profile={content.profile}
+            metrics={content.metrics}
             onDownloadResume={handleDownloadResume}
           />
 
           <ProjectsSection
-            projects={portfolioData.projects}
+            projects={content.projects}
             onSelectProject={setSelectedProject}
           />
 
-          <ExpertiseBento competencies={portfolioData.competencies} />
+          <ExpertiseBento competencies={content.competencies} />
 
           <TimelineSection
-            experience={portfolioData.experience}
-            credentials={portfolioData.credentials}
+            experience={content.experience}
+            credentials={content.credentials}
           />
         </main>
 
-        <ContactFooter profile={portfolioData.profile} />
+        <ContactFooter
+          profile={content.profile}
+          onNavigateAdmin={() => navigateTo('/admin')}
+        />
       </div>
 
       {/* Engineering Case Study Glass Modal */}

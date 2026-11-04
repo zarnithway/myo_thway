@@ -1,23 +1,45 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   Check,
   Copy,
   ExternalLink,
+  Lock,
   Mail,
   MapPin,
   Phone,
   Send,
 } from 'lucide-react';
+import { submitContactInquiry } from '../lib/cmsService';
 import type { PortfolioData } from '../types/portfolio';
 import { GlassCard } from './ui/GlassCard';
 
 interface ContactFooterProps {
   profile: PortfolioData['profile'];
+  onNavigateAdmin?: () => void;
 }
 
-export function ContactFooter({ profile }: ContactFooterProps) {
+export function ContactFooter({
+  profile,
+  onNavigateAdmin,
+}: ContactFooterProps) {
   const [copied, setCopied] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+  const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const mountedAtRef = useRef<number>(0);
+
+  useEffect(() => {
+    mountedAtRef.current = Date.now();
+  }, []);
+
+  const safeProfileLink =
+    /^https?:\/\//i.test(profile.linkedin.trim())
+      ? profile.linkedin.trim()
+      : 'https://linkedin.com';
 
   const handleCopyEmail = async () => {
     try {
@@ -29,9 +51,32 @@ export function ContactFooter({ profile }: ContactFooterProps) {
     }
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    // Anti-bot honeypot & minimum human fill-time trap (< 1.5s after mount)
+    if (
+      honeypot.trim().length > 0 ||
+      Date.now() - mountedAtRef.current < 1500
+    ) {
+      setSubmitted(true);
+      return;
+    }
+
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await submitContactInquiry({ name, contact, message });
+      setSubmitted(true);
+      setName('');
+      setContact('');
+      setMessage('');
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : 'Failed to send inquiry.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -164,9 +209,9 @@ export function ContactFooter({ profile }: ContactFooterProps) {
             style={{ borderColor: 'var(--glass-border-outer)' }}
           >
             <a
-              href={profile.linkedin}
+              href={safeProfileLink}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 font-mono text-xs font-medium transition-opacity hover:opacity-80"
               style={{ color: 'var(--accent)' }}
             >
@@ -213,6 +258,20 @@ export function ContactFooter({ profile }: ContactFooterProps) {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Hidden Honeypot Anti-Spam Field */}
+              <div aria-hidden="true" className="hidden">
+                <label htmlFor="company-website-url">Website</label>
+                <input
+                  id="company-website-url"
+                  name="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label
@@ -227,6 +286,9 @@ export function ContactFooter({ profile }: ContactFooterProps) {
                     name="name"
                     type="text"
                     required
+                    maxLength={120}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="U Kyaw Swar / Homeowner"
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2.5 text-base outline-none transition-shadow sm:text-sm"
                     style={{ color: 'var(--text-primary)' }}
@@ -246,6 +308,9 @@ export function ContactFooter({ profile }: ContactFooterProps) {
                     name="email"
                     type="text"
                     required
+                    maxLength={160}
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
                     placeholder="+95 9 ... or email@domain.com"
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2.5 text-base outline-none transition-shadow sm:text-sm"
                     style={{ color: 'var(--text-primary)' }}
@@ -266,11 +331,21 @@ export function ContactFooter({ profile }: ContactFooterProps) {
                   name="message"
                   rows={4}
                   required
+                  minLength={5}
+                  maxLength={3000}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   placeholder="e.g., 40' × 60' plot in Mandalay, 3-story modern RC residence, turnkey design & build..."
                   className="tech-chip input-focus mt-1.5 w-full resize-none rounded-xl px-3.5 py-2.5 text-base outline-none transition-shadow sm:text-sm"
                   style={{ color: 'var(--text-primary)' }}
                 />
               </div>
+
+              {submitError && (
+                <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-500">
+                  {submitError}
+                </p>
+              )}
 
               <div className="flex flex-col items-stretch justify-between gap-3 pt-1 sm:flex-row sm:items-center">
                 <span
@@ -281,14 +356,17 @@ export function ContactFooter({ profile }: ContactFooterProps) {
                 </span>
                 <button
                   type="submit"
-                  className="inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold transition-transform hover:scale-[1.02] sm:min-h-0"
+                  disabled={submitting}
+                  className="inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold transition-transform hover:scale-[1.02] disabled:opacity-60 sm:min-h-0"
                   style={{
                     backgroundColor: 'var(--solid-bg)',
                     color: 'var(--solid-fg)',
                   }}
                 >
                   <Send className="h-3.5 w-3.5 shrink-0" />
-                  <span>Request Consultation</span>
+                  <span>
+                    {submitting ? 'Sending Brief...' : 'Request Consultation'}
+                  </span>
                 </button>
               </div>
             </form>
@@ -329,13 +407,29 @@ export function ContactFooter({ profile }: ContactFooterProps) {
             B.E. (Civil) YTU • R.S.E.
           </span>
         </div>
-        <div className="lg:text-right">
-          <span className="block text-[9px] uppercase opacity-70">
-            DRAWING NO. / SCALE
-          </span>
-          <span style={{ color: 'var(--text-primary)' }}>
-            UMT-RES-2026 • 1:100
-          </span>
+        <div className="flex items-end justify-between gap-2 lg:flex-col lg:items-end lg:justify-start lg:text-right">
+          <div>
+            <span className="block text-[9px] uppercase opacity-70">
+              DRAWING NO. / SCALE
+            </span>
+            <span style={{ color: 'var(--text-primary)' }}>
+              UMT-RES-2026 • 1:100
+            </span>
+          </div>
+          {onNavigateAdmin && (
+            <a
+              href="/admin"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigateAdmin();
+              }}
+              className="inline-flex items-center gap-1 text-[10px] opacity-65 transition-opacity hover:opacity-100"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              <Lock className="h-2.5 w-2.5" />
+              <span>Admin</span>
+            </a>
+          )}
         </div>
       </div>
     </footer>

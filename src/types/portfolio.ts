@@ -1,9 +1,10 @@
-export type ProjectCategory =
-  | 'All'
+export type PresetProjectCategory =
   | 'Modern Villas'
   | 'Multi-Story RC'
   | 'Turnkey Homes'
   | 'Structural & BIM';
+
+export type ProjectCategory = 'All' | PresetProjectCategory | (string & {});
 
 export interface ProjectSpec {
   label: string;
@@ -19,7 +20,7 @@ export interface CivilProject {
   id: string;
   code: string;
   title: string;
-  category: Exclude<ProjectCategory, 'All'>;
+  category: string;
   location: string;
   year: string;
   role: string;
@@ -76,6 +77,7 @@ export interface PortfolioData {
     company: string;
     companyLogo: string;
     avatar: string;
+    resumeUrl?: string;
     tagline: string;
     bio: string;
     location: string;
@@ -91,4 +93,15 @@ export interface PortfolioData {
   competencies: CompetencyGroup[];
   experience: ExperienceItem[];
   credentials: CredentialItem[];
+}
+
+export type InquiryStatus = 'new' | 'reviewed' | 'archived';
+
+export interface ContactInquiry {
+  id: string;
+  name: string;
+  contact: string;
+  message: string;
+  status: InquiryStatus;
+  createdAt: string;
 }

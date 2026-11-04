@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -23,8 +24,7 @@ interface ProjectsSectionProps {
 
 const ITEMS_PER_PAGE = 4;
 
-const categories: ProjectCategory[] = [
-  'All',
+const DEFAULT_CATEGORY_ORDER: ProjectCategory[] = [
   'Modern Villas',
   'Multi-Story RC',
   'Turnkey Homes',
@@ -53,6 +53,25 @@ export function ProjectsSection({
     ready: false,
   });
 
+  const categories = useMemo<ProjectCategory[]>(() => {
+    const present = new Set(projects.map((p) => p.category).filter(Boolean));
+    const ordered: ProjectCategory[] = ['All'];
+    for (const preset of DEFAULT_CATEGORY_ORDER) {
+      if (present.has(preset)) {
+        ordered.push(preset);
+        present.delete(preset);
+      }
+    }
+    for (const custom of present) {
+      ordered.push(custom);
+    }
+    return ordered;
+  }, [projects]);
+
+  const effectiveCategory: ProjectCategory = categories.includes(activeCategory)
+    ? activeCategory
+    : 'All';
+
   const {
     wrapperRef: filterWrapperRef,
     scrollRef: tablistRef,
@@ -66,7 +85,7 @@ export function ProjectsSection({
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const updateFilterPill = useCallback(() => {
-    const el = tabRefs.current[activeCategory];
+    const el = tabRefs.current[effectiveCategory];
     if (el) {
       setFilterPill({
         left: el.offsetLeft,
@@ -87,11 +106,11 @@ export function ProjectsSection({
         });
       }
     }
-  }, [activeCategory, tablistRef]);
+  }, [effectiveCategory, tablistRef]);
 
   useLayoutEffect(() => {
     updateFilterPill();
-  }, [updateFilterPill]);
+  }, [updateFilterPill, categories]);
 
   useEffect(() => {
     const container = tablistRef.current;
@@ -116,9 +135,9 @@ export function ProjectsSection({
   }, [tablistRef, updateFilterPill]);
 
   const filteredProjects =
-    activeCategory === 'All'
+    effectiveCategory === 'All'
       ? projects
-      : projects.filter((p) => p.category === activeCategory);
+      : projects.filter((p) => p.category === effectiveCategory);
 
   const totalPages = Math.max(
     1,
@@ -209,7 +228,7 @@ export function ProjectsSection({
               />
 
               {categories.map((category) => {
-                const isActive = activeCategory === category;
+                const isActive = effectiveCategory === category;
                 return (
                   <button
                     key={category}
