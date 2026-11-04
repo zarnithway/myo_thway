@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" fill="none">
+  <defs>
+    <linearGradient id="sky3" x1="0" y1="0" x2="1200" y2="750" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EEF4FA"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="glass3" x1="200" y1="260" x2="980" y2="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#DBEAFE" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#BFDBFE" stop-opacity="0.55"/>
+    </linearGradient>
+    <pattern id="grid3" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0F172A" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="750" fill="url(#sky3)"/>
+  <rect width="1200" height="750" fill="url(#grid3)"/>
+
+  <rect x="0" y="575" width="1200" height="175" fill="#DCE4EE"/>
+  <line x1="70" y1="575" x2="1130" y2="575" stroke="#334155" stroke-width="2"/>
+
+  <!-- Flood-Safe +0.90m Plinth Deck -->
+  <rect x="160" y="535" width="880" height="40" fill="#CBD5E1" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Left Two-Story Living Wing -->
+  <rect x="190" y="275" width="380" height="260" fill="#F8FAFC" stroke="#1E293B" stroke-width="1.75"/>
+  <rect x="220" y="305" width="320" height="95" fill="url(#glass3)" stroke="#475569" stroke-width="1.2"/>
+  <rect x="220" y="420" width="320" height="115" fill="url(#glass3)" stroke="#475569" stroke-width="1.2"/>
+
+  <!-- Right Courtyard Pavilion & Deep Tropical Roof Overhang -->
+  <polygon points="150,275 1055,275 1030,252 175,252" fill="#F8FAFC" stroke="#1E293B" stroke-width="1.75"/>
+  <rect x="620" y="365" width="390" height="18" fill="#F8FAFC" stroke="#1E293B" stroke-width="1.5"/>
+  <rect x="640" y="383" width="340" height="152" fill="url(#glass3)" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Plinth Elevation Callout -->
+  <rect x="860" y="490" width="175" height="26" rx="13" fill="#FFFFFF" fill-opacity="0.9" stroke="#93C5FD"/>
+  <text x="947" y="507" text-anchor="middle" font-family="monospace" font-size="11" fill="#1E3A8A">PLINTH EL. +0.90m</text>
+</svg>

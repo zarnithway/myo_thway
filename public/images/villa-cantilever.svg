@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" fill="none">
+  <defs>
+    <linearGradient id="bgSky" x1="0" y1="0" x2="1200" y2="750" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EBF2FA"/>
+      <stop offset="60%" stop-color="#F6F8FB"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="glassPane" x1="300" y1="200" x2="880" y2="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#DBEAFE" stop-opacity="0.88"/>
+      <stop offset="50%" stop-color="#93C5FD" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#EFF6FF" stop-opacity="0.9"/>
+    </linearGradient>
+    <pattern id="cad" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0F172A" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="750" fill="url(#bgSky)"/>
+  <rect width="1200" height="750" fill="url(#cad)"/>
+
+  <!-- Ground Datum Line -->
+  <rect x="0" y="585" width="1200" height="165" fill="#E2E8F0"/>
+  <line x1="60" y1="585" x2="1140" y2="585" stroke="#334155" stroke-width="2"/>
+
+  <!-- Plinth & Landscape Terrace -->
+  <rect x="210" y="555" width="760" height="30" fill="#CBD5E1" stroke="#475569" stroke-width="1.5"/>
+
+  <!-- Ground Floor Recessed Glass Living Hall -->
+  <rect x="260" y="405" width="540" height="150" fill="url(#glassPane)" stroke="#334155" stroke-width="1.5"/>
+  <!-- Slender RC Columns -->
+  <rect x="260" y="405" width="22" height="150" fill="#F8FAFC" stroke="#334155" stroke-width="1.5"/>
+  <rect x="560" y="405" width="20" height="150" fill="#F8FAFC" stroke="#334155" stroke-width="1.5"/>
+  <rect x="780" y="405" width="28" height="150" fill="#E2E8F0" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Dramatic 4.2m Cantilevered Upper Floor RC Slab & Volume -->
+  <rect x="175" y="245" width="730" height="24" fill="#F8FAFC" stroke="#1E293B" stroke-width="1.75"/>
+  <rect x="175" y="385" width="730" height="22" fill="#F8FAFC" stroke="#1E293B" stroke-width="1.75"/>
+  <!-- Upper Level Glass & Architectural Concrete Wall -->
+  <rect x="205" y="269" width="440" height="116" fill="url(#glassPane)" stroke="#334155" stroke-width="1.5"/>
+  <rect x="645" y="269" width="240" height="116" fill="#F1F5F9" stroke="#334155" stroke-width="1.5"/>
+  <!-- Glass Balcony Balustrade -->
+  <rect x="175" y="345" width="470" height="40" fill="#FFFFFF" fill-opacity="0.45" stroke="#60A5FA" stroke-width="1.2"/>
+
+  <!-- Penthouse / Roof Pavilion -->
+  <rect x="460" y="150" width="420" height="16" fill="#F8FAFC" stroke="#1E293B" stroke-width="1.75"/>
+  <rect x="490" y="166" width="355" height="79" fill="url(#glassPane)" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- CAD Cantilever Callout -->
+  <g stroke="#1D4ED8" stroke-opacity="0.65" stroke-width="1.2" stroke-dasharray="5 5">
+    <line x1="175" y1="210" x2="260" y2="210"/>
+    <line x1="175" y1="200" x2="175" y2="242"/>
+    <line x1="260" y1="200" x2="260" y2="402"/>
+  </g>
+  <rect x="145" y="170" width="145" height="26" rx="13" fill="#FFFFFF" fill-opacity="0.9" stroke="#93C5FD"/>
+  <text x="217" y="187" text-anchor="middle" font-family="monospace" font-size="11" fill="#1E3A8A">4.2m CANTILEVER</text>
+</svg>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      try {
+        if (localStorage.getItem('umt-portfolio-theme') === 'blueprint') {
+          document.documentElement.setAttribute('data-theme', 'blueprint');
+        }
+      } catch {}
+    </script>
+    <style>
+      html {
+        background-color: #f4f6f9;
+        color: #0b1930;
+        color-scheme: light;
+      }
+      html[data-theme='blueprint'] {
+        background-color: #081121;
+        color: #f1f5f9;
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        background-color: inherit;
+        color: inherit;
+      }
+    </style>
+    <link rel="icon" type="image/png" href="/images/umt-logo-mark.png" />
+    <meta
+      name="description"
+      content="Portfolio of Myo Thway, R.S.E. — B.E. (Civil) YTU, Lead at UMT Construction Group in Mandalay, Myanmar specializing in modern residential homes and RC structural engineering."
+    />
+    <title>Myo Thway, R.S.E. — Lead Civil Engineer | UMT Construction Group</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="antialiased selection:bg-amber-400/25">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

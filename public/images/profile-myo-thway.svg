@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" fill="none">
+  <defs>
+    <linearGradient id="portraitBg" x1="0" y1="0" x2="640" y2="800" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EEF2F7"/>
+      <stop offset="55%" stop-color="#E2E8F2"/>
+      <stop offset="100%" stop-color="#D1DBE9"/>
+    </linearGradient>
+    <linearGradient id="suitGrad" x1="160" y1="470" x2="480" y2="800" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#132D60"/>
+      <stop offset="100%" stop-color="#09152E"/>
+    </linearGradient>
+    <linearGradient id="glassHalo" x1="140" y1="120" x2="500" y2="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.82"/>
+      <stop offset="100%" stop-color="#F5B316" stop-opacity="0.14"/>
+    </linearGradient>
+    <pattern id="pGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#0F2859" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Minimalist Architectural Backdrop & Datum Grid -->
+  <rect width="640" height="800" fill="url(#portraitBg)"/>
+  <rect width="640" height="800" fill="url(#pGrid)"/>
+
+  <!-- Subtle Structural Elevation Lines Behind Portrait -->
+  <g stroke="#0F2859" stroke-opacity="0.14" stroke-width="1.2">
+    <line x1="88" y1="0" x2="88" y2="800"/>
+    <line x1="552" y1="0" x2="552" y2="800"/>
+    <line x1="0" y1="160" x2="640" y2="160" stroke-dasharray="5 5"/>
+    <circle cx="320" cy="315" r="185" fill="url(#glassHalo)" stroke="#FFFFFF" stroke-opacity="0.78" stroke-width="1.5"/>
+  </g>
+
+  <!-- Minimalist Executive Civil Engineer Silhouette -->
+  <!-- Shoulders / Blazer -->
+  <path d="M108 800C118 612 204 522 320 522C436 522 522 612 532 800H108Z" fill="url(#suitGrad)"/>
+  <!-- Crisp White Collar & Shirt V -->
+  <polygon points="268,525 320,645 372,525" fill="#F8FAFC"/>
+  <!-- UMT Gold & Navy Tie -->
+  <polygon points="310,552 330,552 338,632 320,655 302,632" fill="#D99B08"/>
+  <!-- Blazer Lapels -->
+  <path d="M268 525L232 630L320 655L268 525Z" fill="#1C3973"/>
+  <path d="M372 525L408 630L320 655L372 525Z" fill="#1C3973"/>
+  <!-- Subtle UMT Gold Engineer Lapel Pin -->
+  <circle cx="382" cy="596" r="4.5" fill="#F5B316"/>
+
+  <!-- Neck & Head Minimalist Geometric Form -->
+  <rect x="286" y="445" width="68" height="92" rx="28" fill="#CBD5E1"/>
+  <rect x="236" y="218" width="168" height="238" rx="82" fill="#E2E8F0" stroke="#FFFFFF" stroke-width="2"/>
+  <!-- Subtle Hairline Contour -->
+  <path d="M236 298C236 235 272 204 324 204C376 204 406 236 404 298C388 266 358 252 318 252C278 252 252 268 236 298Z" fill="#1E293B"/>
+
+  <!-- Top CAD Corner Crosshairs -->
+  <g stroke="#475569" stroke-opacity="0.5" stroke-width="1.5" stroke-linecap="round">
+    <path d="M36 44H56M46 34V54"/>
+    <path d="M584 44H604M594 34V54"/>
+  </g>
+  <text x="320" y="50" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="2" fill="#475569">PORTRAIT • REPLACE IN /public/images</text>
+</svg>

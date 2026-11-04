@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* 85% Clean Glass & Concrete | 12% UMT Deep Structural Navy | 3% Precision Gold */
+:root {
+  --bg-canvas: #f4f6f9;
+  --grid-minor: rgba(11, 30, 71, 0.034);
+  --grid-major: rgba(11, 30, 71, 0.062);
+  --orb-sky: rgba(15, 40, 89, 0.11);
+  --orb-slate: rgba(203, 213, 225, 0.65);
+  --orb-warm: rgba(245, 179, 22, 0.16);
+
+  --glass-bg: rgba(255, 255, 255, 0.66);
+  --glass-bg-hover: rgba(255, 255, 255, 0.84);
+  --glass-bg-strong: rgba(255, 255, 255, 0.88);
+  --glass-border-outer: rgba(11, 30, 71, 0.085);
+  --glass-specular: rgba(255, 255, 255, 0.92);
+  --glass-shadow: 0 12px 36px -12px rgba(11, 25, 48, 0.075);
+  --glass-shadow-hover: 0 20px 44px -14px rgba(11, 25, 48, 0.12);
+
+  --text-primary: #0b1930;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* 12% Primary UMT Deep Structural Navy */
+  --accent: #0f2859;
+  --accent-soft: rgba(15, 40, 89, 0.08);
+  --accent-border: rgba(15, 40, 89, 0.2);
+  --solid-bg: #0f2859;
+  --solid-fg: #ffffff;
+
+  /* 3% Precision UMT Construction Gold */
+  --gold: #b47800;
+  --gold-dot: #eab308;
+  --gold-soft: rgba(245, 179, 22, 0.14);
+  --gold-border: rgba(217, 155, 8, 0.34);
+
+  --chip-bg: rgba(241, 245, 249, 0.78);
+
+  /* Architectural photography color grading tokens */
+  --photo-filter: contrast(1.05) saturate(0.9) brightness(0.98);
+  --photo-filter-hover: contrast(1.05) saturate(1) brightness(1.01);
+  --photo-overlay: linear-gradient(
+    180deg,
+    rgba(11, 25, 48, 0.15) 0%,
+    rgba(15, 40, 89, 0.03) 45%,
+    rgba(11, 25, 48, 0.24) 100%
+  );
+}
+
+[data-theme="blueprint"] {
+  --bg-canvas: #081121;
+  --grid-minor: rgba(148, 163, 184, 0.042);
+  --grid-major: rgba(245, 179, 22, 0.065);
+  --orb-sky: rgba(22, 56, 128, 0.28);
+  --orb-slate: rgba(15, 40, 89, 0.32);
+  --orb-warm: rgba(245, 179, 22, 0.13);
+
+  --glass-bg: rgba(13, 25, 48, 0.62);
+  --glass-bg-hover: rgba(19, 36, 68, 0.76);
+  --glass-bg-strong: rgba(11, 22, 43, 0.88);
+  --glass-border-outer: rgba(148, 163, 184, 0.15);
+  --glass-specular: rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 16px 40px -12px rgba(2, 6, 23, 0.6);
+  --glass-shadow-hover: 0 22px 48px -12px rgba(2, 6, 23, 0.75);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* In Dark Blueprint Mode, UMT Gold highlights active controls with Deep Navy text */
+  --accent: #f5b316;
+  --accent-soft: rgba(245, 179, 22, 0.13);
+  --accent-border: rgba(245, 179, 22, 0.32);
+  --solid-bg: #f5b316;
+  --solid-fg: #081121;
+
+  --gold: #f5b316;
+  --gold-dot: #f5b316;
+  --gold-soft: rgba(245, 179, 22, 0.13);
+  --gold-border: rgba(245, 179, 22, 0.3);
+
+  --chip-bg: rgba(19, 34, 64, 0.72);
+
+  --photo-filter: contrast(1.07) saturate(0.82) brightness(0.86);
+  --photo-filter-hover: contrast(1.07) saturate(0.95) brightness(0.93);
+  --photo-overlay: linear-gradient(
+    180deg,
+    rgba(8, 17, 33, 0.28) 0%,
+    rgba(15, 40, 89, 0.12) 50%,
+    rgba(8, 17, 33, 0.44) 100%
+  );
+}
+
+@layer base {
+  html {
+    overflow-x: clip;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    overflow-x: clip;
+  }
+
+  html.theme-ready body {
+    transition: background-color 0.35s ease, color 0.35s ease;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.028em;
+    font-feature-settings: "ss01" 1;
+  }
+
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  section[id],
+  footer[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  @media (min-width: 768px) {
+    section[id],
+    footer[id] {
+      scroll-margin-top: 5.5rem;
+    }
+  }
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Subtle CAD structural grid canvas */
+.cad-grid-bg {
+  background-size: 40px 40px, 40px 40px, 200px 200px, 200px 200px;
+  background-image:
+    linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px);
+}
+
+/* Architectural frosted glass surfaces */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(145%);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
+  border: 1px solid var(--glass-border-outer);
+  box-shadow: inset 0 1px 0 0 var(--glass-specular), var(--glass-shadow);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.glass-panel-interactive:hover {
+  background: var(--glass-bg-hover);
+  box-shadow: inset 0 1px 0 0 var(--glass-specular), var(--glass-shadow-hover);
+  transform: translateY(-3px);
+}
+
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-border-outer);
+  box-shadow: inset 0 1px 0 0 var(--glass-specular), var(--glass-shadow-hover);
+}
+
+.tech-chip {
+  background: var(--chip-bg);
+  border: 1px solid var(--glass-border-outer);
+  color: var(--text-secondary);
+}
+
+.input-focus:focus {
+  border-color: var(--gold-border);
+  box-shadow: 0 0 0 3px var(--gold-soft);
+}
+
+/* Unified Architectural Photography Color Correction */
+.arch-photo-frame {
+  position: relative;
+  background-color: #cbd5e1;
+}
+
+.arch-photo-grade {
+  filter: var(--photo-filter);
+  transition:
+    transform 650ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 450ms ease;
+}
+
+.group:hover .arch-photo-grade {
+  filter: var(--photo-filter-hover);
+  transform: scale(1.035);
+}
+
+.arch-photo-tint {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: var(--photo-overlay);
+  mix-blend-mode: normal;
+  transition: opacity 400ms ease;
+}
+
+.group:hover .arch-photo-tint {
+  opacity: 0.72;
+}
+
+/* Direct non-adjacent navigation indicator cross-dissolve (avoids sweeping intermediate buttons) */
+@keyframes pill-direct-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pill-direct-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}

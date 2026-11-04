@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" fill="none">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="1200" y2="750" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EAF1F9"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="glass2" x1="380" y1="100" x2="820" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#DBEAFE" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#93C5FD" stop-opacity="0.5"/>
+    </linearGradient>
+    <pattern id="grid2" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0F172A" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="750" fill="url(#sky2)"/>
+  <rect width="1200" height="750" fill="url(#grid2)"/>
+
+  <rect x="0" y="620" width="1200" height="130" fill="#CBD5E1"/>
+  <line x1="80" y1="620" x2="1120" y2="620" stroke="#334155" stroke-width="2"/>
+
+  <!-- Subsurface Bored Pile Foundation Dashed Engineering Indication -->
+  <g stroke="#1D4ED8" stroke-opacity="0.45" stroke-width="1.5" stroke-dasharray="6 4">
+    <rect x="395" y="632" width="26" height="95"/>
+    <rect x="587" y="632" width="26" height="95"/>
+    <rect x="779" y="632" width="26" height="95"/>
+  </g>
+
+  <!-- 6-Story RC Residential Frame -->
+  <rect x="360" y="95" width="480" height="525" fill="#F8FAFC" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- 6 Floor Glazed Bays & Slab Bands -->
+  <g>
+    <rect x="390" y="125" width="420" height="62" fill="url(#glass2)" stroke="#475569" stroke-width="1.2"/>
+    <rect x="390" y="205" width="420" height="62" fill="url(#glass2)" stroke="#475569" stroke-width="1.2"/>
+    <rect x="390" y="285" width="420" height="62" fill="url(#glass2)" stroke="#475569" stroke-width="1.2"/>
+    <rect x="390" y="365" width="420" height="62" fill="url(#glass2)" stroke="#475569" stroke-width="1.2"/>
+    <rect x="390" y="445" width="420" height="62" fill="url(#glass2)" stroke="#475569" stroke-width="1.2"/>
+    <rect x="390" y="528" width="420" height="92" fill="#E2E8F0" stroke="#475569" stroke-width="1.2"/>
+  </g>
+
+  <!-- Center Structural Column Line -->
+  <rect x="590" y="95" width="20" height="525" fill="#F8FAFC" stroke="#334155" stroke-width="1.2"/>
+
+  <!-- Elevation Marker -->
+  <rect x="875" y="95" width="165" height="28" rx="14" fill="#FFFFFF" fill-opacity="0.9" stroke="#93C5FD"/>
+  <text x="957" y="113" text-anchor="middle" font-family="monospace" font-size="11" fill="#1E3A8A">EL. +20.4m (6F RC)</text>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" fill="none">
+  <defs>
+    <linearGradient id="sky4" x1="0" y1="0" x2="1200" y2="750" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <pattern id="bimGrid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#60A5FA" stroke-opacity="0.1" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Blueprint BIM Structural Frame View -->
+  <rect width="1200" height="750" fill="url(#sky4)"/>
+  <rect width="1200" height="750" fill="url(#bimGrid)"/>
+
+  <!-- Twin 3-Story Structural BIM Wireframe -->
+  <g stroke="#93C5FD" stroke-width="2">
+    <!-- Ground Datum & Footing Pads -->
+    <line x1="120" y1="580" x2="1080" y2="580" stroke="#60A5FA" stroke-opacity="0.7"/>
+    <rect x="195" y="580" width="70" height="24" fill="#1D4ED8" fill-opacity="0.35"/>
+    <rect x="435" y="580" width="70" height="24" fill="#1D4ED8" fill-opacity="0.35"/>
+    <rect x="695" y="580" width="70" height="24" fill="#1D4ED8" fill-opacity="0.35"/>
+    <rect x="935" y="580" width="70" height="24" fill="#1D4ED8" fill-opacity="0.35"/>
+
+    <!-- Vertical RC Columns -->
+    <line x1="230" y1="200" x2="230" y2="580"/>
+    <line x1="470" y1="200" x2="470" y2="580"/>
+    <line x1="600" y1="200" x2="600" y2="580" stroke="#F8FAFC" stroke-dasharray="6 4"/>
+    <line x1="730" y1="200" x2="730" y2="580"/>
+    <line x1="970" y1="200" x2="970" y2="580"/>
+
+    <!-- Horizontal RC Beams & Floor Slabs -->
+    <rect x="200" y="200" width="800" height="16" fill="#60A5FA" fill-opacity="0.25"/>
+    <rect x="180" y="325" width="840" height="16" fill="#60A5FA" fill-opacity="0.25"/>
+    <rect x="200" y="450" width="800" height="16" fill="#60A5FA" fill-opacity="0.25"/>
+  </g>
+
+  <!-- Translucent BIM Analytical Load & Glass Envelopes -->
+  <rect x="230" y="216" width="240" height="109" fill="#3B82F6" fill-opacity="0.14"/>
+  <rect x="730" y="216" width="240" height="109" fill="#3B82F6" fill-opacity="0.14"/>
+  <rect x="230" y="341" width="740" height="109" fill="#93C5FD" fill-opacity="0.1"/>
+
+  <!-- BIM Spec Badge -->
+  <rect x="470" y="130" width="260" height="30" rx="15" fill="#0F172A" stroke="#60A5FA"/>
+  <text x="600" y="149" text-anchor="middle" font-family="monospace" font-size="12" fill="#BFDBFE">LOD 350 • ETABS + REVIT BIM</text>
+</svg>

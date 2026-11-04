@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" fill="none">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1200" y2="750" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E8F0FA"/>
+      <stop offset="55%" stop-color="#F3F6FA"/>
+      <stop offset="100%" stop-color="#DCE5F0"/>
+    </linearGradient>
+    <linearGradient id="glassRoof" x1="180" y1="210" x2="1020" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#BFDBFE" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#93C5FD" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="concretePier" x1="0" y1="300" x2="0" y2="580" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#CBD5E1"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0F172A" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Architectural Daylight Canvas & CAD Grid -->
+  <rect width="1200" height="750" fill="url(#sky)"/>
+  <rect width="1200" height="750" fill="url(#grid)"/>
+
+  <!-- Soft Horizon Reflection -->
+  <rect x="0" y="575" width="1200" height="175" fill="#E2E8F0"/>
+  <line x1="0" y1="575" x2="1200" y2="575" stroke="#64748B" stroke-width="1.5"/>
+
+  <!-- Elevated Precast Guideway Deck -->
+  <rect x="60" y="420" width="1080" height="36" rx="3" fill="#CBD5E1" stroke="#475569" stroke-width="1.5"/>
+  <rect x="60" y="456" width="1080" height="18" fill="#94A3B8"/>
+
+  <!-- Sculptural Precast Y-Piers Supporting Guideway & Canopy -->
+  <g stroke="#475569" stroke-width="1.5">
+    <!-- Pier 1 -->
+    <polygon points="290,575 330,575 348,474 272,474" fill="url(#concretePier)"/>
+    <path d="M310 420 L250 285 M310 420 L370 285" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+    <!-- Pier 2 -->
+    <polygon points="580,575 620,575 638,474 562,474" fill="url(#concretePier)"/>
+    <path d="M600 420 L540 265 M600 420 L660 265" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+    <!-- Pier 3 -->
+    <polygon points="870,575 910,575 928,474 852,474" fill="url(#concretePier)"/>
+    <path d="M890 420 L830 285 M890 420 L950 285" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- Translucent Laminated Structural Glass Canopy Wing -->
+  <polygon points="150,295 600,240 1050,295 1015,322 600,272 185,322" fill="url(#glassRoof)" stroke="#1D4ED8" stroke-opacity="0.55" stroke-width="2"/>
+  <!-- Canopy Mullions -->
+  <g stroke="#1E3A8A" stroke-opacity="0.3" stroke-width="1.2">
+    <line x1="270" y1="281" x2="290" y2="309"/>
+    <line x1="380" y1="268" x2="395" y2="296"/>
+    <line x1="490" y1="254" x2="500" y2="284"/>
+    <line x1="600" y1="240" x2="600" y2="272"/>
+    <line x1="710" y1="254" x2="700" y2="284"/>
+    <line x1="820" y1="268" x2="805" y2="296"/>
+    <line x1="930" y1="281" x2="910" y2="309"/>
+  </g>
+
+  <!-- Sleek Minimalist Light-Rail Train Silhouette on Guideway -->
+  <rect x="210" y="382" width="490" height="36" rx="14" fill="#F8FAFC" stroke="#334155" stroke-width="1.5"/>
+  <rect x="235" y="391" width="90" height="14" rx="4" fill="#93C5FD" fill-opacity="0.7"/>
+  <rect x="340" y="391" width="110" height="14" rx="4" fill="#93C5FD" fill-opacity="0.7"/>
+  <rect x="465" y="391" width="110" height="14" rx="4" fill="#93C5FD" fill-opacity="0.7"/>
+  <rect x="590" y="391" width="85" height="14" rx="4" fill="#93C5FD" fill-opacity="0.7"/>
+
+  <!-- Architectural Dimension Callouts -->
+  <g stroke="#1D4ED8" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="5 5">
+    <line x1="150" y1="195" x2="1050" y2="195"/>
+    <line x1="150" y1="185" x2="150" y2="290"/>
+    <line x1="1050" y1="185" x2="1050" y2="290"/>
+  </g>
+  <rect x="520" y="180" width="160" height="28" rx="14" fill="#FFFFFF" fill-opacity="0.85" stroke="#93C5FD"/>
+  <text x="600" y="198" text-anchor="middle" font-family="monospace" font-size="12" fill="#1E3A8A">SPAN 90.0m CANOPY</text>
+</svg>
