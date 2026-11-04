@@ -8,7 +8,7 @@ export const portfolioData: PortfolioData = {
     title: 'Lead Civil & Structural Engineer',
     company: 'UMT Construction Group',
     companyLogo: '/images/umt-logo-mark.png',
-    avatar: '/images/profile-myo-thway.svg',
+    avatar: '/images/profile-myo-thway.png',
     tagline:
       'Engineering enduring residential homes with structural precision and minimalist architectural clarity.',
     bio: 'Registered Senior Engineer (R.S.E.) and B.E. (Civil) graduate from Yangon Technological University (YTU). Based in Mandalay, Myanmar and leading UMT Construction Group — specializing in seismic-resilient reinforced concrete residences, modern villas, and end-to-end turnkey home construction.',

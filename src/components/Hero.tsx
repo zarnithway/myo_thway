@@ -96,16 +96,24 @@ export function Hero({ profile, metrics, onDownloadResume }: HeroProps) {
         <div className="mx-auto w-full max-w-[320px] sm:max-w-sm lg:col-span-5 lg:max-w-none">
           <GlassCard className="relative p-2.5 !transition-none sm:p-3.5">
             <div
-              className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border"
+              className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border bg-slate-100"
               style={{ borderColor: 'var(--glass-border-outer)' }}
             >
               {!imgError ? (
-                <img
-                  src={profile.avatar}
-                  alt={`${profile.name}, ${profile.credentials} — ${profile.company}`}
-                  onError={() => setImgError(true)}
-                  className="h-full w-full object-cover object-top"
-                />
+                <>
+                  <img
+                    src={profile.avatar}
+                    alt={`${profile.name}, ${profile.credentials} — ${profile.company}`}
+                    fetchPriority="high"
+                    decoding="async"
+                    onError={() => setImgError(true)}
+                    className="h-full w-full object-cover object-[48%_top]"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/25 via-slate-950/5 to-transparent"
+                  />
+                </>
               ) : (
                 <div
                   className="flex h-full w-full flex-col items-center justify-center p-6 text-center"
