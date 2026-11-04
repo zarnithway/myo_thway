@@ -9,21 +9,37 @@ import { TimelineSection } from './components/TimelineSection';
 import { portfolioData } from './data/portfolioData';
 import type { CivilProject } from './types/portfolio';
 
-const THEME_STORAGE_KEY = 'umt-portfolio-theme';
+type ThemeMode = 'architectural' | 'blueprint';
+
+const LEGACY_THEME_KEY = 'umt-portfolio-theme';
+const THEME_OVERRIDE_KEY = 'umt-theme-override';
+
+function getSystemTheme(): ThemeMode {
+  if (
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-color-scheme: dark)').matches
+  ) {
+    return 'blueprint';
+  }
+  return 'architectural';
+}
 
 export function App() {
-  const [theme, setTheme] = useState<'architectural' | 'blueprint'>(() => {
+  const [systemTheme, setSystemTheme] = useState<ThemeMode>(getSystemTheme);
+  const [themeOverride, setThemeOverride] = useState<ThemeMode | null>(() => {
     try {
-      return localStorage.getItem(THEME_STORAGE_KEY) === 'blueprint'
-        ? 'blueprint'
-        : 'architectural';
+      localStorage.removeItem(LEGACY_THEME_KEY);
+      const saved = localStorage.getItem(THEME_OVERRIDE_KEY);
+      return saved === 'blueprint' || saved === 'architectural' ? saved : null;
     } catch {
-      return 'architectural';
+      return null;
     }
   });
   const [selectedProject, setSelectedProject] = useState<CivilProject | null>(
     null
   );
+
+  const theme: ThemeMode = themeOverride ?? systemTheme;
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
@@ -32,23 +48,53 @@ export function App() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  // Sync live with OS / browser light-dark color scheme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
+    if (!mediaQuery) return;
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      const nextSystem: ThemeMode = e.matches ? 'blueprint' : 'architectural';
+      setSystemTheme(nextSystem);
+      setThemeOverride(null);
+      try {
+        localStorage.removeItem(THEME_OVERRIDE_KEY);
+      } catch {
+        // Ignore storage errors in restricted environments
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   useEffect(() => {
     if (theme === 'blueprint') {
       document.documentElement.setAttribute('data-theme', 'blueprint');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {
-      // Ignore storage errors in restricted environments
-    }
   }, [theme]);
 
   const handleToggleTheme = () => {
-    setTheme((prev) =>
-      prev === 'architectural' ? 'blueprint' : 'architectural'
-    );
+    const nextTheme: ThemeMode =
+      theme === 'architectural' ? 'blueprint' : 'architectural';
+
+    if (nextTheme === systemTheme) {
+      setThemeOverride(null);
+      try {
+        localStorage.removeItem(THEME_OVERRIDE_KEY);
+      } catch {
+        // Ignore storage errors in restricted environments
+      }
+    } else {
+      setThemeOverride(nextTheme);
+      try {
+        localStorage.setItem(THEME_OVERRIDE_KEY, nextTheme);
+      } catch {
+        // Ignore storage errors in restricted environments
+      }
+    }
   };
 
   const handleDownloadResume = () => {

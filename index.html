@@ -5,8 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       try {
-        if (localStorage.getItem('umt-portfolio-theme') === 'blueprint') {
+        localStorage.removeItem('umt-portfolio-theme');
+        var override = localStorage.getItem('umt-theme-override');
+        var prefersDark =
+          window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var resolved =
+          override === 'blueprint' || override === 'architectural'
+            ? override
+            : prefersDark
+              ? 'blueprint'
+              : 'architectural';
+        if (resolved === 'blueprint') {
           document.documentElement.setAttribute('data-theme', 'blueprint');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
         }
       } catch {}
     </script>
