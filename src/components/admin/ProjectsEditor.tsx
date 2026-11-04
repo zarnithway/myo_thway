@@ -18,6 +18,7 @@ import type {
   ProjectGalleryItem,
 } from '../../types/portfolio';
 import { GlassCard } from '../ui/GlassCard';
+import { DelimitedListField } from './DelimitedListField';
 
 interface ProjectsEditorProps {
   projects: CivilProject[];
@@ -48,6 +49,21 @@ function normalizeGalleryList(
   );
 }
 
+function getNextProjectCode(projects: CivilProject[]): string {
+  let maxNum = 0;
+  for (const p of projects) {
+    const match = p.code.match(/(\d+)/);
+    if (match) {
+      const parsed = Number.parseInt(match[1], 10);
+      if (!Number.isNaN(parsed) && parsed > maxNum) {
+        maxNum = parsed;
+      }
+    }
+  }
+  const next = Math.max(projects.length + 1, maxNum + 1);
+  return `UMT-${String(next).padStart(2, '0')}`;
+}
+
 export function ProjectsEditor({
   projects,
   onChangeProjects,
@@ -73,45 +89,31 @@ export function ProjectsEditor({
   };
 
   const handleAddProject = () => {
-    const nextNum = String(projects.length + 1).padStart(2, '0');
+    const nextCode = getNextProjectCode(projects);
     const newId = `umt-project-${Date.now()}`;
     const created: CivilProject = {
       id: newId,
-      code: `UMT-${nextNum}`,
-      title: 'New Mandalay Residence',
-      category: 'Modern Villas',
-      location: 'Chanayethazan Township, Mandalay',
-      year: String(new Date().getFullYear()),
-      role: 'Turnkey Structural & Construction Lead — UMT',
-      budget: 'Custom Turnkey Build',
-      image: '/images/villa-mandalay-courtyard.jpg',
-      gallery: [
-        {
-          src: '/images/villa-mandalay-courtyard.jpg',
-          caption: 'Primary architectural facade & structural frame',
-        },
-      ],
-      summary:
-        'Seismic-resilient reinforced concrete residence engineered and built by UMT Construction Group.',
-      challenge:
-        'Balancing open architectural spans with Mandalay Zone 4 seismic ductility requirements.',
-      solution:
-        'Moment-resisting RC frame with ETABS dynamic verification and strict site concrete quality control.',
-      outcomes: [
-        'Zero differential settlement under service load',
-        'Delivered on schedule with full R.S.E. structural sign-off',
-      ],
-      standards: ['MNBC 2020', 'ACI 318-19', 'ASCE 7'],
-      software: ['ETABS', 'SAFE', 'AutoCAD', 'Revit BIM'],
-      specs: [
-        { label: 'Plot / GFA', value: "40' × 60' • 3,600 sq ft" },
-        { label: 'Structure', value: '2.5-Story Special Moment RC Frame' },
-      ],
+      code: nextCode,
+      title: '',
+      category: '',
+      location: '',
+      year: '',
+      role: '',
+      budget: '',
+      image: '',
+      gallery: [],
+      summary: '',
+      challenge: '',
+      solution: '',
+      outcomes: [],
+      standards: [],
+      software: [],
+      specs: [],
     };
 
     onChangeProjects([created, ...projects]);
     setSelectedId(newId);
-    onNotify('Added new residential project draft.');
+    onNotify(`Created ${nextCode}. Fill in your project details.`);
   };
 
   const handleDuplicateProject = (idx: number) => {
@@ -167,7 +169,7 @@ export function ProjectsEditor({
         image: url,
         gallery: alreadyInGallery
           ? currentGallery
-          : [{ src: url, caption: `${activeProject.title} — Exterior` }, ...currentGallery],
+          : [{ src: url, caption: '' }, ...currentGallery],
       });
       onNotify('Cover photo uploaded.');
     } catch (err) {
@@ -191,10 +193,9 @@ export function ProjectsEditor({
       const uploadedItems: ProjectGalleryItem[] = [];
       for (const file of files) {
         const url = await uploadMediaFile(file, 'projects');
-        const baseCaption = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
         uploadedItems.push({
           src: url,
-          caption: baseCaption,
+          caption: '',
         });
       }
 
@@ -307,11 +308,24 @@ export function ProjectsEditor({
                   }}
                 >
                   <div className="flex items-center gap-2.5">
-                    <img
-                      src={proj.image}
-                      alt={proj.title}
-                      className="h-12 w-14 shrink-0 rounded-lg object-cover"
-                    />
+                    {proj.image ? (
+                      <img
+                        src={proj.image}
+                        alt={proj.title || proj.code}
+                        className="h-12 w-14 shrink-0 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="flex h-12 w-14 shrink-0 items-center justify-center rounded-lg border"
+                        style={{
+                          borderColor: 'var(--glass-border-outer)',
+                          backgroundColor: 'var(--glass-bg)',
+                          color: 'var(--text-muted)',
+                        }}
+                      >
+                        <Images className="h-4 w-4 opacity-50" />
+                      </div>
+                    )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
                         <span
@@ -330,15 +344,19 @@ export function ProjectsEditor({
                       </div>
                       <p
                         className="truncate text-xs font-semibold"
-                        style={{ color: 'var(--text-primary)' }}
+                        style={{
+                          color: proj.title
+                            ? 'var(--text-primary)'
+                            : 'var(--text-muted)',
+                        }}
                       >
-                        {proj.title}
+                        {proj.title || 'Untitled Project'}
                       </p>
                       <p
                         className="truncate font-mono text-[10px]"
                         style={{ color: 'var(--text-muted)' }}
                       >
-                        {proj.category}
+                        {proj.category || 'No category yet'}
                       </p>
                     </div>
                   </div>
@@ -409,7 +427,7 @@ export function ProjectsEditor({
                   EDITING {activeProject.code}
                 </p>
                 <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {activeProject.title}
+                  {activeProject.title || activeProject.code}
                 </h3>
               </div>
 
@@ -422,6 +440,7 @@ export function ProjectsEditor({
                     type="text"
                     value={activeProject.code}
                     onChange={(e) => updateProject({ code: e.target.value })}
+                    placeholder="UMT-09"
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3 py-2 font-mono text-sm outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />
@@ -435,6 +454,7 @@ export function ProjectsEditor({
                     type="text"
                     value={activeProject.year}
                     onChange={(e) => updateProject({ year: e.target.value })}
+                    placeholder="2026"
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3 py-2 font-mono text-sm outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />
@@ -448,6 +468,7 @@ export function ProjectsEditor({
                     type="text"
                     value={activeProject.title}
                     onChange={(e) => updateProject({ title: e.target.value })}
+                    placeholder="Enter project title..."
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2 text-sm font-medium outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />
@@ -497,6 +518,7 @@ export function ProjectsEditor({
                     type="text"
                     value={activeProject.location}
                     onChange={(e) => updateProject({ location: e.target.value })}
+                    placeholder="e.g. Chanmyathazi, Mandalay"
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3 py-2 text-sm outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />
@@ -510,6 +532,7 @@ export function ProjectsEditor({
                     type="text"
                     value={activeProject.budget}
                     onChange={(e) => updateProject({ budget: e.target.value })}
+                    placeholder="e.g. 3.5-Story RC Residence • 6,400 sq.ft"
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3 py-2 text-sm outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />
@@ -523,6 +546,7 @@ export function ProjectsEditor({
                     type="text"
                     value={activeProject.role}
                     onChange={(e) => updateProject({ role: e.target.value })}
+                    placeholder="e.g. Lead Structural Engineer & Turnkey Director (R.S.E.)"
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3 py-2 text-sm outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />
@@ -604,106 +628,118 @@ export function ProjectsEditor({
               </div>
 
               {/* Gallery Grid */}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {galleryItems.map((item, gIdx) => {
-                  const isCover = activeProject.image === item.src;
-                  return (
-                    <div
-                      key={`${item.src}-${gIdx}`}
-                      className="rounded-xl border p-3"
-                      style={{
-                        borderColor: isCover
-                          ? 'var(--gold-border)'
-                          : 'var(--glass-border-outer)',
-                        backgroundColor: 'var(--chip-bg)',
-                      }}
-                    >
-                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-200">
-                        <img
-                          src={item.src}
-                          alt={item.caption || `Slide ${gIdx + 1}`}
-                          className="h-full w-full object-cover"
+              {galleryItems.length === 0 ? (
+                <div
+                  className="rounded-xl border border-dashed px-4 py-8 text-center font-mono text-xs"
+                  style={{
+                    borderColor: 'var(--glass-border-outer)',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  No photos uploaded yet. Upload a cover photo or gallery photos above.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {galleryItems.map((item, gIdx) => {
+                    const isCover = activeProject.image === item.src;
+                    return (
+                      <div
+                        key={`${item.src}-${gIdx}`}
+                        className="rounded-xl border p-3"
+                        style={{
+                          borderColor: isCover
+                            ? 'var(--gold-border)'
+                            : 'var(--glass-border-outer)',
+                          backgroundColor: 'var(--chip-bg)',
+                        }}
+                      >
+                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-200">
+                          <img
+                            src={item.src}
+                            alt={item.caption || `Slide ${gIdx + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                          <span className="glass-strong absolute top-2 left-2 rounded-md px-2 py-0.5 font-mono text-[10px] font-semibold">
+                            #{String(gIdx + 1).padStart(2, '0')}
+                          </span>
+                          {isCover && (
+                            <span
+                              className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-semibold"
+                              style={{
+                                backgroundColor: 'var(--solid-bg)',
+                                color: 'var(--solid-fg)',
+                              }}
+                            >
+                              <Star className="h-2.5 w-2.5 fill-current" />
+                              COVER
+                            </span>
+                          )}
+                        </div>
+
+                        <input
+                          type="text"
+                          value={item.caption ?? ''}
+                          onChange={(e) =>
+                            updateGalleryCaption(gIdx, e.target.value)
+                          }
+                          placeholder="Photo caption (exterior, living room, rebar QA...)"
+                          className="tech-chip input-focus mt-2.5 w-full rounded-lg px-2.5 py-1.5 text-xs outline-none"
+                          style={{ color: 'var(--text-primary)' }}
                         />
-                        <span className="glass-strong absolute top-2 left-2 rounded-md px-2 py-0.5 font-mono text-[10px] font-semibold">
-                          #{String(gIdx + 1).padStart(2, '0')}
-                        </span>
-                        {isCover && (
-                          <span
-                            className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-semibold"
-                            style={{
-                              backgroundColor: 'var(--solid-bg)',
-                              color: 'var(--solid-fg)',
-                            }}
-                          >
-                            <Star className="h-2.5 w-2.5 fill-current" />
-                            COVER
-                          </span>
-                        )}
-                      </div>
 
-                      <input
-                        type="text"
-                        value={item.caption ?? ''}
-                        onChange={(e) =>
-                          updateGalleryCaption(gIdx, e.target.value)
-                        }
-                        placeholder="Photo caption (exterior, living room, rebar QA...)"
-                        className="tech-chip input-focus mt-2.5 w-full rounded-lg px-2.5 py-1.5 text-xs outline-none"
-                        style={{ color: 'var(--text-primary)' }}
-                      />
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          {!isCover ? (
+                            <button
+                              type="button"
+                              onClick={() => promoteToCover(item.src)}
+                              className="cursor-pointer font-mono text-[10px] font-medium underline"
+                              style={{ color: 'var(--gold)' }}
+                            >
+                              Set as Cover
+                            </button>
+                          ) : (
+                            <span
+                              className="font-mono text-[10px]"
+                              style={{ color: 'var(--text-muted)' }}
+                            >
+                              Primary card image
+                            </span>
+                          )}
 
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        {!isCover ? (
-                          <button
-                            type="button"
-                            onClick={() => promoteToCover(item.src)}
-                            className="cursor-pointer font-mono text-[10px] font-medium underline"
-                            style={{ color: 'var(--gold)' }}
-                          >
-                            Set as Cover
-                          </button>
-                        ) : (
-                          <span
-                            className="font-mono text-[10px]"
-                            style={{ color: 'var(--text-muted)' }}
-                          >
-                            Primary card image
-                          </span>
-                        )}
-
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => moveGalleryItem(gIdx, -1)}
-                            disabled={gIdx === 0}
-                            className="tech-chip flex h-6 w-6 cursor-pointer items-center justify-center rounded-md disabled:opacity-30"
-                            title="Move earlier"
-                          >
-                            <ArrowLeft className="h-3 w-3" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => moveGalleryItem(gIdx, 1)}
-                            disabled={gIdx === galleryItems.length - 1}
-                            className="tech-chip flex h-6 w-6 cursor-pointer items-center justify-center rounded-md disabled:opacity-30"
-                            title="Move later"
-                          >
-                            <ArrowRight className="h-3 w-3" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryItem(gIdx)}
-                            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-red-500 hover:bg-red-500/10"
-                            title="Remove photo"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveGalleryItem(gIdx, -1)}
+                              disabled={gIdx === 0}
+                              className="tech-chip flex h-6 w-6 cursor-pointer items-center justify-center rounded-md disabled:opacity-30"
+                              title="Move earlier"
+                            >
+                              <ArrowLeft className="h-3 w-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveGalleryItem(gIdx, 1)}
+                              disabled={gIdx === galleryItems.length - 1}
+                              className="tech-chip flex h-6 w-6 cursor-pointer items-center justify-center rounded-md disabled:opacity-30"
+                              title="Move later"
+                            >
+                              <ArrowRight className="h-3 w-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeGalleryItem(gIdx)}
+                              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-red-500 hover:bg-red-500/10"
+                              title="Remove photo"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </GlassCard>
 
             {/* Engineering Case Study Copy & Technical Specs */}
@@ -726,6 +762,7 @@ export function ProjectsEditor({
                     rows={2}
                     value={activeProject.summary}
                     onChange={(e) => updateProject({ summary: e.target.value })}
+                    placeholder="Brief overview of the residence and engineering scope..."
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2 text-sm outline-none"
                     style={{ color: 'var(--text-primary)' }}
                   />
@@ -742,6 +779,7 @@ export function ProjectsEditor({
                       onChange={(e) =>
                         updateProject({ challenge: e.target.value })
                       }
+                      placeholder="Describe site, geotechnical, or seismic design challenges..."
                       className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2 text-sm outline-none"
                       style={{ color: 'var(--text-primary)' }}
                     />
@@ -757,6 +795,7 @@ export function ProjectsEditor({
                       onChange={(e) =>
                         updateProject({ solution: e.target.value })
                       }
+                      placeholder="Describe structural framing, foundation, and execution solution..."
                       className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2 text-sm outline-none"
                       style={{ color: 'var(--text-primary)' }}
                     />
@@ -767,19 +806,14 @@ export function ProjectsEditor({
                   <label className="block font-mono text-[11px] uppercase" style={{ color: 'var(--text-muted)' }}>
                     Key Outcomes & QA Highlights (One per line)
                   </label>
-                  <textarea
+                  <DelimitedListField
+                    key={`outcomes-${activeProject.id}`}
+                    items={activeProject.outcomes}
+                    mode="newline"
                     rows={3}
-                    value={activeProject.outcomes.join('\n')}
-                    onChange={(e) =>
-                      updateProject({
-                        outcomes: e.target.value
-                          .split('\n')
-                          .map((s) => s.trim())
-                          .filter(Boolean),
-                      })
-                    }
+                    placeholder="Enter one engineering outcome per line..."
+                    onChange={(outcomes) => updateProject({ outcomes })}
                     className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2 text-sm outline-none"
-                    style={{ color: 'var(--text-primary)' }}
                   />
                 </div>
 
@@ -788,19 +822,14 @@ export function ProjectsEditor({
                     <label className="block font-mono text-[11px] uppercase" style={{ color: 'var(--text-muted)' }}>
                       Design Codes & Standards (Comma separated)
                     </label>
-                    <input
-                      type="text"
-                      value={activeProject.standards.join(', ')}
-                      onChange={(e) =>
-                        updateProject({
-                          standards: e.target.value
-                            .split(',')
-                            .map((s) => s.trim())
-                            .filter(Boolean),
-                        })
-                      }
+                    <DelimitedListField
+                      key={`standards-${activeProject.id}`}
+                      items={activeProject.standards}
+                      mode="comma"
+                      rows={1}
+                      placeholder="MNBC 2020, ACI 318-19..."
+                      onChange={(standards) => updateProject({ standards })}
                       className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2 font-mono text-xs outline-none"
-                      style={{ color: 'var(--text-primary)' }}
                     />
                   </div>
 
@@ -808,19 +837,14 @@ export function ProjectsEditor({
                     <label className="block font-mono text-[11px] uppercase" style={{ color: 'var(--text-muted)' }}>
                       BIM & Analysis Software (Comma separated)
                     </label>
-                    <input
-                      type="text"
-                      value={activeProject.software.join(', ')}
-                      onChange={(e) =>
-                        updateProject({
-                          software: e.target.value
-                            .split(',')
-                            .map((s) => s.trim())
-                            .filter(Boolean),
-                        })
-                      }
+                    <DelimitedListField
+                      key={`software-${activeProject.id}`}
+                      items={activeProject.software}
+                      mode="comma"
+                      rows={1}
+                      placeholder="ETABS, SAFE, AutoCAD..."
+                      onChange={(software) => updateProject({ software })}
                       className="tech-chip input-focus mt-1.5 w-full rounded-xl px-3.5 py-2 font-mono text-xs outline-none"
-                      style={{ color: 'var(--text-primary)' }}
                     />
                   </div>
                 </div>
@@ -837,7 +861,7 @@ export function ProjectsEditor({
                         updateProject({
                           specs: [
                             ...activeProject.specs,
-                            { label: 'Parameter', value: 'Specification' },
+                            { label: '', value: '' },
                           ],
                         })
                       }

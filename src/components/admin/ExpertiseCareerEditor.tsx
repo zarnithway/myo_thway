@@ -5,6 +5,7 @@ import type {
   ExperienceItem,
 } from '../../types/portfolio';
 import { GlassCard } from '../ui/GlassCard';
+import { DelimitedListField } from './DelimitedListField';
 
 interface ExpertiseCareerEditorProps {
   competencies: CompetencyGroup[];
@@ -31,9 +32,9 @@ export function ExpertiseCareerEditor({
       {
         id: `comp-${Date.now()}`,
         code: `CAP-${num}`,
-        title: 'New Engineering Discipline',
-        subtitle: 'Core Tools & Standards',
-        items: ['ACI 318', 'MNBC 2020'],
+        title: '',
+        subtitle: '',
+        items: [],
       },
     ]);
   };
@@ -56,15 +57,13 @@ export function ExpertiseCareerEditor({
   const addExperience = () => {
     onChangeExperience([
       {
-        period: '2024 — Present',
-        elevation: 'EL +12.0m',
-        role: 'Lead Structural & Civil Engineer',
-        organization: 'UMT Construction Group',
-        location: 'Mandalay, Myanmar',
-        summary: 'Leading residential structural engineering and turnkey execution.',
-        highlights: [
-          'Directed structural calculation sign-offs and site QA inspections.',
-        ],
+        period: '',
+        elevation: '',
+        role: '',
+        organization: '',
+        location: '',
+        summary: '',
+        highlights: [],
       },
       ...experience,
     ]);
@@ -77,10 +76,10 @@ export function ExpertiseCareerEditor({
       ...credentials,
       {
         code: `CRED-${num}`,
-        title: 'Professional Engineering Qualification',
-        issuer: 'Issuing Institution',
-        year: 'Verified',
-        status: 'Active',
+        title: '',
+        issuer: '',
+        year: '',
+        status: '',
       },
     ]);
   };
@@ -206,26 +205,20 @@ export function ExpertiseCareerEditor({
                   <label className="block font-mono text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>
                     Capability Chips (Comma separated)
                   </label>
-                  <textarea
+                  <DelimitedListField
+                    key={`comp-items-${comp.code}-${idx}`}
+                    items={comp.items}
+                    mode="comma"
                     rows={2}
-                    value={comp.items.join(', ')}
-                    onChange={(e) =>
+                    placeholder="ETABS Seismic Frame, ACI 318 Detailing..."
+                    onChange={(items) =>
                       onChangeCompetencies(
                         competencies.map((c, i) =>
-                          i === idx
-                            ? {
-                                ...c,
-                                items: e.target.value
-                                  .split(',')
-                                  .map((s) => s.trim())
-                                  .filter(Boolean),
-                              }
-                            : c
+                          i === idx ? { ...c, items } : c
                         )
                       )
                     }
                     className="tech-chip input-focus mt-1 w-full rounded-lg px-3 py-1.5 text-xs outline-none"
-                    style={{ color: 'var(--text-primary)' }}
                   />
                 </div>
               </div>
@@ -402,26 +395,20 @@ export function ExpertiseCareerEditor({
                 <label className="block font-mono text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>
                   Key Achievements (One bullet per line)
                 </label>
-                <textarea
+                <DelimitedListField
+                  key={`exp-highlights-${idx}`}
+                  items={exp.highlights}
+                  mode="newline"
                   rows={3}
-                  value={exp.highlights.join('\n')}
-                  onChange={(e) =>
+                  placeholder="Enter one achievement per line..."
+                  onChange={(highlights) =>
                     onChangeExperience(
                       experience.map((item, i) =>
-                        i === idx
-                          ? {
-                              ...item,
-                              highlights: e.target.value
-                                .split('\n')
-                                .map((s) => s.trim())
-                                .filter(Boolean),
-                            }
-                          : item
+                        i === idx ? { ...item, highlights } : item
                       )
                     )
                   }
                   className="tech-chip input-focus mt-1 w-full rounded-lg px-3 py-2 text-xs outline-none"
-                  style={{ color: 'var(--text-primary)' }}
                 />
               </div>
             </div>

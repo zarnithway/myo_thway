@@ -310,12 +310,24 @@ export function ProjectsSection({
               className="arch-photo-frame aspect-[16/10] w-full overflow-hidden border-b"
               style={{ borderColor: 'var(--glass-border-outer)' }}
             >
-              <img
-                src={project.image}
-                alt={project.title}
-                loading="lazy"
-                className="arch-photo-grade h-full w-full object-cover"
-              />
+              {project.image ? (
+                <img
+                  src={project.image}
+                  alt={project.title || project.code}
+                  loading="lazy"
+                  className="arch-photo-grade h-full w-full object-cover"
+                />
+              ) : (
+                <div
+                  className="flex h-full w-full items-center justify-center font-mono text-xs uppercase tracking-widest"
+                  style={{
+                    backgroundColor: 'var(--chip-bg)',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  {project.code}
+                </div>
+              )}
               <div className="arch-photo-tint" />
 
               {/* Top Floating CAD Tag — Truncate-safe on 320px screens */}

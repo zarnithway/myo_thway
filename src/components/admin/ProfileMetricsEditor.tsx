@@ -99,9 +99,9 @@ export function ProfileMetricsEditor({
     onChangeMetrics([
       ...metrics,
       {
-        value: 'New KPI',
-        label: 'Metric Title',
-        detail: 'Supporting Detail',
+        value: '',
+        label: '',
+        detail: '',
       },
     ]);
   };

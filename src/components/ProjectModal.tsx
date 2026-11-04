@@ -34,11 +34,14 @@ interface ProjectModalSheetProps {
 function ProjectModalSheet({ project, onClose }: ProjectModalSheetProps) {
   const galleryItems = useMemo<ProjectGalleryItem[]>(() => {
     if (project.gallery && project.gallery.length > 0) {
-      return project.gallery.map((item) =>
-        typeof item === 'string' ? { src: item } : item
-      );
+      return project.gallery
+        .map((item) => (typeof item === 'string' ? { src: item } : item))
+        .filter((item) => Boolean(item.src));
     }
-    return [{ src: project.image, caption: 'Primary Architectural Elevation' }];
+    if (project.image) {
+      return [{ src: project.image, caption: 'Primary Architectural Elevation' }];
+    }
+    return [];
   }, [project]);
 
   const totalImages = galleryItems.length;
@@ -58,8 +61,8 @@ function ProjectModalSheet({ project, onClose }: ProjectModalSheetProps) {
     maskStyle: thumbMaskStyle,
   } = useScrollableBar({ extraWidthPx: 20 });
 
-  const safeIndex = Math.min(activeIndex, totalImages - 1);
-  const currentMedia = galleryItems[safeIndex] ?? galleryItems[0];
+  const safeIndex = Math.max(0, Math.min(activeIndex, totalImages - 1));
+  const currentMedia = galleryItems[safeIndex];
 
   const goPrev = useCallback(() => {
     setActiveIndex((prev) => (prev - 1 + totalImages) % totalImages);
@@ -192,84 +195,86 @@ function ProjectModalSheet({ project, onClose }: ProjectModalSheetProps) {
           </div>
 
           {/* Primary Multi-Image Architectural Stage */}
-          <div
-            onTouchStart={(e) => handleTouchStart(e.touches[0].clientX)}
-            onTouchEnd={(e) => handleTouchEnd(e.changedTouches[0].clientX)}
-            className="arch-photo-frame relative aspect-[16/10] w-full select-none overflow-hidden border-b sm:aspect-[16/9]"
-            style={{ borderColor: 'var(--glass-border-outer)' }}
-          >
-            <img
-              key={currentMedia.src}
-              src={currentMedia.src}
-              alt={
-                currentMedia.caption
-                  ? `${project.title} — ${currentMedia.caption}`
-                  : project.title
-              }
-              onClick={() => setIsLightboxOpen(true)}
-              className="arch-photo-grade h-full w-full cursor-zoom-in object-cover"
-            />
-            <div className="arch-photo-tint" />
+          {currentMedia && (
+            <div
+              onTouchStart={(e) => handleTouchStart(e.touches[0].clientX)}
+              onTouchEnd={(e) => handleTouchEnd(e.changedTouches[0].clientX)}
+              className="arch-photo-frame relative aspect-[16/10] w-full select-none overflow-hidden border-b sm:aspect-[16/9]"
+              style={{ borderColor: 'var(--glass-border-outer)' }}
+            >
+              <img
+                key={currentMedia.src}
+                src={currentMedia.src}
+                alt={
+                  currentMedia.caption
+                    ? `${project.title} — ${currentMedia.caption}`
+                    : project.title
+                }
+                onClick={() => setIsLightboxOpen(true)}
+                className="arch-photo-grade h-full w-full cursor-zoom-in object-cover"
+              />
+              <div className="arch-photo-tint" />
 
-            {/* Top-Left Frame Counter & View Label */}
-            <div className="glass-strong pointer-events-none absolute top-3 left-3 z-10 flex max-w-[calc(100%-5.5rem)] items-center gap-2 rounded-full px-3 py-1 font-mono text-[11px] sm:top-3.5 sm:left-4">
-              <span className="shrink-0">
-                <span className="font-semibold" style={{ color: 'var(--gold)' }}>
-                  {String(safeIndex + 1).padStart(2, '0')}
+              {/* Top-Left Frame Counter & View Label */}
+              <div className="glass-strong pointer-events-none absolute top-3 left-3 z-10 flex max-w-[calc(100%-5.5rem)] items-center gap-2 rounded-full px-3 py-1 font-mono text-[11px] sm:top-3.5 sm:left-4">
+                <span className="shrink-0">
+                  <span className="font-semibold" style={{ color: 'var(--gold)' }}>
+                    {String(safeIndex + 1).padStart(2, '0')}
+                  </span>
+                  <span style={{ color: 'var(--text-muted)' }}>
+                    /{String(totalImages).padStart(2, '0')}
+                  </span>
                 </span>
-                <span style={{ color: 'var(--text-muted)' }}>
-                  /{String(totalImages).padStart(2, '0')}
-                </span>
-              </span>
-              {currentMedia.caption && (
+                {currentMedia.caption && (
+                  <>
+                    <span style={{ color: 'var(--text-muted)' }}>•</span>
+                    <span
+                      className="truncate"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      {currentMedia.caption}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Top-Right Fullscreen Lightbox Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsLightboxOpen(true)}
+                aria-label="Inspect full-screen image"
+                title="Inspect full screen"
+                className="glass-strong absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 sm:top-3.5 sm:right-4"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.85} />
+              </button>
+
+              {/* Left & Right Stage Navigation Controls */}
+              {totalImages > 1 && (
                 <>
-                  <span style={{ color: 'var(--text-muted)' }}>•</span>
-                  <span
-                    className="truncate"
+                  <button
+                    type="button"
+                    onClick={goPrev}
+                    aria-label="Previous project photo"
+                    className="glass-strong absolute top-1/2 left-2.5 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 sm:left-3.5 sm:h-10 sm:w-10"
                     style={{ color: 'var(--text-primary)' }}
                   >
-                    {currentMedia.caption}
-                  </span>
+                    <ChevronLeft className="h-4 w-4" strokeWidth={2} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    aria-label="Next project photo"
+                    className="glass-strong absolute top-1/2 right-2.5 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 sm:right-3.5 sm:h-10 sm:w-10"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    <ChevronRight className="h-4 w-4" strokeWidth={2} />
+                  </button>
                 </>
               )}
             </div>
-
-            {/* Top-Right Fullscreen Lightbox Trigger */}
-            <button
-              type="button"
-              onClick={() => setIsLightboxOpen(true)}
-              aria-label="Inspect full-screen image"
-              title="Inspect full screen"
-              className="glass-strong absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 sm:top-3.5 sm:right-4"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.85} />
-            </button>
-
-            {/* Left & Right Stage Navigation Controls */}
-            {totalImages > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={goPrev}
-                  aria-label="Previous project photo"
-                  className="glass-strong absolute top-1/2 left-2.5 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 sm:left-3.5 sm:h-10 sm:w-10"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-                </button>
-                <button
-                  type="button"
-                  onClick={goNext}
-                  aria-label="Next project photo"
-                  className="glass-strong absolute top-1/2 right-2.5 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 sm:right-3.5 sm:h-10 sm:w-10"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  <ChevronRight className="h-4 w-4" strokeWidth={2} />
-                </button>
-              </>
-            )}
-          </div>
+          )}
 
           {/* Scrollable Thumbnail Filmstrip (Scales cleanly to 5, 8, or 15+ photos with zero overflow) */}
           {totalImages > 1 && (
@@ -541,7 +546,7 @@ function ProjectModalSheet({ project, onClose }: ProjectModalSheetProps) {
       </div>
 
       {/* Full-Screen Architectural Lightbox Inspector */}
-      {isLightboxOpen && (
+      {isLightboxOpen && currentMedia && (
         <div
           role="dialog"
           aria-modal="true"
