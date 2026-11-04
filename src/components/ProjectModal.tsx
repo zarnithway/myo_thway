@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Maximize2,
   MapPin,
+  Share2,
   Shield,
   Wrench,
   X,
@@ -47,6 +49,18 @@ function ProjectModalSheet({ project, onClose }: ProjectModalSheetProps) {
   const totalImages = galleryItems.length;
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleShareLink = async () => {
+    try {
+      const shareUrl = `${window.location.origin}/?project=${encodeURIComponent(project.code)}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2200);
+    } catch {
+      // Fallback if clipboard API blocked
+    }
+  };
 
   const thumbRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const touchStartXRef = useRef<number | null>(null);
@@ -184,14 +198,40 @@ function ProjectModalSheet({ project, onClose }: ProjectModalSheetProps) {
                 </>
               )}
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close case study"
-              className="tech-chip flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-opacity hover:opacity-80 sm:h-8 sm:w-8"
-            >
-              <X className="h-4 w-4" />
-            </button>
+
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={handleShareLink}
+                aria-label={copiedLink ? 'Project link copied' : 'Share project link'}
+                title={copiedLink ? 'Link copied to clipboard!' : 'Copy direct project link'}
+                className="tech-chip inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-mono transition-opacity hover:opacity-85 sm:h-8"
+                style={{
+                  color: copiedLink ? '#10b981' : 'var(--text-primary)',
+                }}
+              >
+                {copiedLink ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-500" />
+                    <span className="font-sans font-semibold text-emerald-500">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Share</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close case study"
+                className="tech-chip flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-opacity hover:opacity-80 sm:h-8 sm:w-8"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           {/* Primary Multi-Image Architectural Stage */}

@@ -34,6 +34,22 @@ function getSystemTheme(): ThemeMode {
   return 'architectural';
 }
 
+function findProjectByQuery(projects: CivilProject[]): CivilProject | null {
+  if (typeof window === 'undefined') return null;
+  const queryCode = new URLSearchParams(window.location.search).get('project');
+  if (!queryCode) return null;
+  const normalized = queryCode.trim().toLowerCase();
+  return (
+    projects.find((p) => {
+      if (p.status === 'draft') return false;
+      return (
+        p.code.toLowerCase() === normalized ||
+        p.id.toLowerCase() === normalized
+      );
+    }) ?? null
+  );
+}
+
 export function App() {
   const [pathname, setPathname] = useState<string>(() =>
     typeof window !== 'undefined' ? window.location.pathname : '/'
@@ -62,8 +78,8 @@ export function App() {
       return null;
     }
   });
-  const [selectedProject, setSelectedProject] = useState<CivilProject | null>(
-    null
+  const [selectedProject, setSelectedProject] = useState<CivilProject | null>(() =>
+    findProjectByQuery(getInitialCachedPortfolioData().projects)
   );
 
   const theme: ThemeMode = themeOverride ?? systemTheme;
@@ -101,6 +117,23 @@ export function App() {
     };
   }, [pathname]);
 
+  // Synchronize browser URL query param whenever selectedProject opens or closes
+  const handleSelectProject = useCallback(
+    (project: CivilProject | null) => {
+      setSelectedProject(project);
+      if (typeof window === 'undefined' || routeState === 'secret-admin') return;
+
+      const url = new URL(window.location.href);
+      if (project) {
+        url.searchParams.set('project', project.code);
+      } else {
+        url.searchParams.delete('project');
+      }
+      window.history.replaceState({}, '', url.toString());
+    },
+    [routeState]
+  );
+
   // Prevent search engine indexing whenever viewing secret admin studio
   useEffect(() => {
     if (routeState !== 'secret-admin') return;
@@ -119,6 +152,10 @@ export function App() {
     loadPortfolioData().then(({ data }) => {
       if (active) {
         setContent(data);
+        const queryMatched = findProjectByQuery(data.projects);
+        if (queryMatched) {
+          setSelectedProject((current) => current ?? queryMatched);
+        }
       }
     });
     return () => {
@@ -137,10 +174,12 @@ export function App() {
       } else {
         setRouteState('checking');
       }
+
+      setSelectedProject(findProjectByQuery(content.projects));
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [content.projects]);
 
   const navigateHome = useCallback(() => {
     window.history.pushState(null, '', '/');
@@ -320,7 +359,7 @@ export function App() {
 
           <ProjectsSection
             projects={content.projects}
-            onSelectProject={setSelectedProject}
+            onSelectProject={handleSelectProject}
           />
 
           <ExpertiseBento competencies={content.competencies} />
@@ -337,7 +376,7 @@ export function App() {
       {/* Engineering Case Study Glass Modal */}
       <ProjectModal
         project={selectedProject}
-        onClose={() => setSelectedProject(null)}
+        onClose={() => handleSelectProject(null)}
       />
     </div>
   );
