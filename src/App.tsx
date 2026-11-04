@@ -1,11 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { ContactFooter } from './components/ContactFooter';
-
-const AdminDashboard = lazy(() =>
-  import('./components/admin/AdminDashboard').then((m) => ({
-    default: m.AdminDashboard,
-  }))
-);
 import { ExpertiseBento } from './components/ExpertiseBento';
 import { Hero } from './components/Hero';
 import { Navbar } from './components/Navbar';
@@ -16,7 +10,14 @@ import {
   getInitialCachedPortfolioData,
   loadPortfolioData,
 } from './lib/cmsService';
+import { hashAdminSlug } from './lib/sha256';
 import type { CivilProject, PortfolioData } from './types/portfolio';
+
+const AdminDashboard = lazy(() =>
+  import('./components/admin/AdminDashboard').then((m) => ({
+    default: m.AdminDashboard,
+  }))
+);
 
 type ThemeMode = 'architectural' | 'blueprint';
 
@@ -33,14 +34,21 @@ function getSystemTheme(): ThemeMode {
   return 'architectural';
 }
 
-function isAdminPath(pathname: string): boolean {
-  return pathname === '/admin' || pathname.startsWith('/admin/');
-}
-
 export function App() {
   const [pathname, setPathname] = useState<string>(() =>
     typeof window !== 'undefined' ? window.location.pathname : '/'
   );
+  const [routeState, setRouteState] = useState<
+    'checking' | 'public' | 'secret-admin'
+  >(() => {
+    if (typeof window === 'undefined') return 'public';
+    const clean = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    if (!clean || clean.toLowerCase() === 'admin' || !__ADMIN_ROUTE_HASH__) {
+      return 'public';
+    }
+    return 'checking';
+  });
+
   const [content, setContent] = useState<PortfolioData>(
     getInitialCachedPortfolioData
   );
@@ -60,6 +68,51 @@ export function App() {
 
   const theme: ThemeMode = themeOverride ?? systemTheme;
 
+  // Verify secret admin slug via salted SHA-256 hash; silently normalize "/admin" or invalid paths to "/"
+  useEffect(() => {
+    let active = true;
+    const clean = pathname.replace(/^\/+|\/+$/g, '');
+
+    if (!clean) {
+      return () => {
+        active = false;
+      };
+    }
+
+    if (clean.toLowerCase() === 'admin' || !__ADMIN_ROUTE_HASH__) {
+      window.history.replaceState(null, '', '/');
+      return () => {
+        active = false;
+      };
+    }
+
+    hashAdminSlug(clean).then((digest) => {
+      if (!active) return;
+      if (digest && digest === __ADMIN_ROUTE_HASH__) {
+        setRouteState('secret-admin');
+      } else {
+        window.history.replaceState(null, '', '/');
+        setRouteState('public');
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
+
+  // Prevent search engine indexing whenever viewing secret admin studio
+  useEffect(() => {
+    if (routeState !== 'secret-admin') return;
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex, nofollow';
+    document.head.appendChild(meta);
+    return () => {
+      meta.remove();
+    };
+  }, [routeState]);
+
   // Load latest portfolio content from Supabase (or local preview cache)
   useEffect(() => {
     let active = true;
@@ -73,21 +126,27 @@ export function App() {
     };
   }, []);
 
-  // Client-side SPA route listener (/ <-> /admin)
+  // Client-side SPA route listener
   useEffect(() => {
     const handlePopState = () => {
-      setPathname(window.location.pathname);
+      const next = window.location.pathname;
+      const clean = next.replace(/^\/+|\/+$/g, '');
+      setPathname(next);
+      if (!clean || clean.toLowerCase() === 'admin' || !__ADMIN_ROUTE_HASH__) {
+        setRouteState('public');
+      } else {
+        setRouteState('checking');
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const navigateTo = useCallback((nextPath: string) => {
-    if (window.location.pathname !== nextPath) {
-      window.history.pushState(null, '', nextPath);
-      setPathname(nextPath);
-      window.scrollTo(0, 0);
-    }
+  const navigateHome = useCallback(() => {
+    window.history.pushState(null, '', '/');
+    setPathname('/');
+    setRouteState('public');
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
@@ -204,26 +263,19 @@ export function App() {
     URL.revokeObjectURL(url);
   };
 
-  if (isAdminPath(pathname)) {
+  if (routeState === 'checking') {
+    return <div className="cad-grid-bg min-h-screen" />;
+  }
+
+  if (routeState === 'secret-admin') {
     return (
-      <Suspense
-        fallback={
-          <div className="cad-grid-bg flex min-h-screen items-center justify-center">
-            <p
-              className="font-mono text-xs"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              LOADING UMT ADMIN STUDIO...
-            </p>
-          </div>
-        }
-      >
+      <Suspense fallback={<div className="cad-grid-bg min-h-screen" />}>
         <AdminDashboard
           portfolioData={content}
           onPortfolioSaved={(next) => setContent(next)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
-          onNavigateHome={() => navigateTo('/')}
+          onNavigateHome={navigateHome}
         />
       </Suspense>
     );
@@ -279,10 +331,7 @@ export function App() {
           />
         </main>
 
-        <ContactFooter
-          profile={content.profile}
-          onNavigateAdmin={() => navigateTo('/admin')}
-        />
+        <ContactFooter profile={content.profile} />
       </div>
 
       {/* Engineering Case Study Glass Modal */}

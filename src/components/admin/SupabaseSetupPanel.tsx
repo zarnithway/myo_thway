@@ -286,10 +286,10 @@ export function SupabaseSetupPanel({
             create your admin email & password.
           </li>
           <li>
-            Copy <code>.env.example</code> to <code>.env</code>, paste your{' '}
-            <code>VITE_SUPABASE_URL</code> and{' '}
-            <code>VITE_SUPABASE_ANON_KEY</code> (from Project Settings → API),
-            sign in at <code>/admin</code>, and click{' '}
+            Copy <code>.env.example</code> to <code>.env</code>, set{' '}
+            <code>VITE_SUPABASE_URL</code>,{' '}
+            <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>, and your private{' '}
+            <code>ADMIN_SECRET_SLUG</code>, then sign in and click{' '}
             <strong>Seed Current Data to Supabase</strong> above.
           </li>
         </ol>

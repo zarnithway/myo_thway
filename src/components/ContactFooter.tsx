@@ -3,7 +3,6 @@ import {
   Check,
   Copy,
   ExternalLink,
-  Lock,
   Mail,
   MapPin,
   Phone,
@@ -15,13 +14,9 @@ import { GlassCard } from './ui/GlassCard';
 
 interface ContactFooterProps {
   profile: PortfolioData['profile'];
-  onNavigateAdmin?: () => void;
 }
 
-export function ContactFooter({
-  profile,
-  onNavigateAdmin,
-}: ContactFooterProps) {
+export function ContactFooter({ profile }: ContactFooterProps) {
   const [copied, setCopied] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -407,29 +402,13 @@ export function ContactFooter({
             B.E. (Civil) YTU • R.S.E.
           </span>
         </div>
-        <div className="flex items-end justify-between gap-2 lg:flex-col lg:items-end lg:justify-start lg:text-right">
-          <div>
-            <span className="block text-[9px] uppercase opacity-70">
-              DRAWING NO. / SCALE
-            </span>
-            <span style={{ color: 'var(--text-primary)' }}>
-              UMT-RES-2026 • 1:100
-            </span>
-          </div>
-          {onNavigateAdmin && (
-            <a
-              href="/admin"
-              onClick={(e) => {
-                e.preventDefault();
-                onNavigateAdmin();
-              }}
-              className="inline-flex items-center gap-1 text-[10px] opacity-65 transition-opacity hover:opacity-100"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              <Lock className="h-2.5 w-2.5" />
-              <span>Admin</span>
-            </a>
-          )}
+        <div className="lg:text-right">
+          <span className="block text-[9px] uppercase opacity-70">
+            DRAWING NO. / SCALE
+          </span>
+          <span style={{ color: 'var(--text-primary)' }}>
+            UMT-RES-2026 • 1:100
+          </span>
         </div>
       </div>
     </footer>
