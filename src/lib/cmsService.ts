@@ -191,6 +191,71 @@ export function resetLocalPreviewToDefault(): PortfolioData {
 // Media Upload (Supabase Storage in Live Mode, Optimized Data URL in Preview)
 // ============================================================================
 
+export async function compressImageToWebpFile(
+  file: File,
+  maxDimension = 1920,
+  quality = 0.84
+): Promise<File> {
+  // SVG and non-images bypass canvas compression
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+    return file;
+  }
+
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+      if (width > maxDimension || height > maxDimension) {
+        const scale = Math.min(maxDimension / width, maxDimension / height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          const baseName = file.name.replace(/\.[^.]+$/, '');
+          const webpName = `${baseName || 'image'}.webp`;
+          const webpFile = new File([blob], webpName, {
+            type: 'image/webp',
+            lastModified: Date.now(),
+          });
+          resolve(webpFile);
+        },
+        'image/webp',
+        quality
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file); // Graceful fallback to original file
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 async function compressImageToDataUrl(
   file: File,
   maxDimension = 1440,
@@ -265,8 +330,10 @@ export async function uploadMediaFile(
     throw new Error('File exceeds the 10 MB security upload limit.');
   }
 
+  const fileToUpload = await compressImageToWebpFile(file);
+
   if (isSupabaseConfigured && supabase) {
-    const safeName = file.name
+    const safeName = fileToUpload.name
       .toLowerCase()
       .replace(/[^a-z0-9._-]+/g, '-')
       .replace(/^-+|-+$/g, '');
@@ -274,7 +341,7 @@ export async function uploadMediaFile(
 
     const { error } = await supabase.storage
       .from(SUPABASE_MEDIA_BUCKET)
-      .upload(path, file, {
+      .upload(path, fileToUpload, {
         cacheControl: '3600',
         upsert: true,
       });
@@ -292,17 +359,17 @@ export async function uploadMediaFile(
   }
 
   // Local Preview Mode fallback
-  if (file.type.startsWith('image/')) {
-    return compressImageToDataUrl(file);
+  if (fileToUpload.type.startsWith('image/')) {
+    return compressImageToDataUrl(fileToUpload);
   }
 
-  if (file.size > 2.5 * 1024 * 1024) {
+  if (fileToUpload.size > 2.5 * 1024 * 1024) {
     throw new Error(
       'In Local Preview Mode, PDF/document files must be under 2.5 MB (connect Supabase Storage for large PDFs).'
     );
   }
 
-  return readFileAsDataUrl(file);
+  return readFileAsDataUrl(fileToUpload);
 }
 
 // ============================================================================
