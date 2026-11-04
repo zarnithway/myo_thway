@@ -94,6 +94,7 @@ export function ProjectsEditor({
     const created: CivilProject = {
       id: newId,
       code: nextCode,
+      status: 'draft',
       title: '',
       category: '',
       location: '',
@@ -113,7 +114,7 @@ export function ProjectsEditor({
 
     onChangeProjects([created, ...projects]);
     setSelectedId(newId);
-    onNotify(`Created ${nextCode}. Fill in your project details.`);
+    onNotify(`Created ${nextCode} (Draft). Fill in your project details.`);
   };
 
   const handleDuplicateProject = (idx: number) => {
@@ -328,12 +329,19 @@ export function ProjectsEditor({
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
-                        <span
-                          className="font-mono text-[10px] font-semibold"
-                          style={{ color: 'var(--gold)' }}
-                        >
-                          {proj.code}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="font-mono text-[10px] font-semibold"
+                            style={{ color: 'var(--gold)' }}
+                          >
+                            {proj.code}
+                          </span>
+                          {proj.status === 'draft' && (
+                            <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 font-mono text-[9px] font-semibold text-amber-500">
+                              DRAFT
+                            </span>
+                          )}
+                        </div>
                         <span
                           className="inline-flex items-center gap-1 font-mono text-[10px]"
                           style={{ color: 'var(--text-muted)' }}
@@ -422,13 +430,65 @@ export function ProjectsEditor({
           <div className="space-y-6">
             {/* Core Metadata */}
             <GlassCard className="p-5 sm:p-6 !transition-none">
-              <div className="mb-4 border-b pb-3" style={{ borderColor: 'var(--glass-border-outer)' }}>
-                <p className="font-mono text-[10px] uppercase" style={{ color: 'var(--gold)' }}>
-                  EDITING {activeProject.code}
-                </p>
-                <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {activeProject.title || activeProject.code}
-                </h3>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b pb-3" style={{ borderColor: 'var(--glass-border-outer)' }}>
+                <div>
+                  <p className="font-mono text-[10px] uppercase" style={{ color: 'var(--gold)' }}>
+                    EDITING {activeProject.code}
+                  </p>
+                  <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    {activeProject.title || activeProject.code}
+                  </h3>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                    Status:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateProject({
+                        status:
+                          activeProject.status === 'draft'
+                            ? 'published'
+                            : 'draft',
+                      })
+                    }
+                    className="tech-chip inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 font-mono text-xs font-semibold transition-colors"
+                    style={{
+                      backgroundColor:
+                        activeProject.status === 'draft'
+                          ? 'rgba(245, 158, 11, 0.15)'
+                          : 'rgba(16, 185, 129, 0.15)',
+                      color:
+                        activeProject.status === 'draft'
+                          ? '#f59e0b'
+                          : '#10b981',
+                      border:
+                        activeProject.status === 'draft'
+                          ? '1px solid rgba(245, 158, 11, 0.3)'
+                          : '1px solid rgba(16, 185, 129, 0.3)',
+                    }}
+                    title={
+                      activeProject.status === 'draft'
+                        ? 'Project is hidden from public portfolio. Click to publish.'
+                        : 'Project is published and visible on public portfolio. Click to make draft.'
+                    }
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{
+                        backgroundColor:
+                          activeProject.status === 'draft'
+                            ? '#f59e0b'
+                            : '#10b981',
+                      }}
+                    />
+                    <span>
+                      {activeProject.status === 'draft' ? 'Draft' : 'Published'}
+                    </span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

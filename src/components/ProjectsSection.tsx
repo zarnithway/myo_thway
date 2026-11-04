@@ -43,6 +43,11 @@ export function ProjectsSection({
   projects,
   onSelectProject,
 }: ProjectsSectionProps) {
+  const publicProjects = useMemo(
+    () => projects.filter((p) => p.status !== 'draft'),
+    [projects]
+  );
+
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [filterPill, setFilterPill] = useState<PillRect>({
@@ -54,7 +59,7 @@ export function ProjectsSection({
   });
 
   const categories = useMemo<ProjectCategory[]>(() => {
-    const present = new Set(projects.map((p) => p.category).filter(Boolean));
+    const present = new Set(publicProjects.map((p) => p.category).filter(Boolean));
     const ordered: ProjectCategory[] = ['All'];
     for (const preset of DEFAULT_CATEGORY_ORDER) {
       if (present.has(preset)) {
@@ -66,7 +71,7 @@ export function ProjectsSection({
       ordered.push(custom);
     }
     return ordered;
-  }, [projects]);
+  }, [publicProjects]);
 
   const effectiveCategory: ProjectCategory = categories.includes(activeCategory)
     ? activeCategory
@@ -136,8 +141,8 @@ export function ProjectsSection({
 
   const filteredProjects =
     effectiveCategory === 'All'
-      ? projects
-      : projects.filter((p) => p.category === effectiveCategory);
+      ? publicProjects
+      : publicProjects.filter((p) => p.category === effectiveCategory);
 
   const totalPages = Math.max(
     1,

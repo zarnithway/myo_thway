@@ -6,6 +6,8 @@ export type PresetProjectCategory =
 
 export type ProjectCategory = 'All' | PresetProjectCategory | (string & {});
 
+export type ProjectPublishStatus = 'published' | 'draft';
+
 export interface ProjectSpec {
   label: string;
   value: string;
@@ -26,6 +28,7 @@ export interface CivilProject {
   role: string;
   budget: string;
   image: string;
+  status?: ProjectPublishStatus;
   gallery?: (string | ProjectGalleryItem)[];
   summary: string;
   challenge: string;
